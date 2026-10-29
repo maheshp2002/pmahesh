@@ -1,26 +1,335 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Syne:wght@700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant light (&:where(.light, .light *));
+@custom-variant dark (&:where(.dark, .dark *));
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --font-heading: var(--font-syne), sans-serif;
+    --font-body: var(--font-inter), sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  html.dark, html:not(.light) {
+    background-color: #000000;
+    color: #ffffff;
+    color-scheme: dark;
+  }
+
+  html.light {
+    background-color: #F8F8FA;
+    color: #111114;
+    color-scheme: light;
+  }
+
+  body {
+    font-family: var(--font-body);
+    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  h1, h2, h3, h4, .font-heading {
+    font-family: var(--font-heading);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Custom Scrollbar - Dark */
+html.dark ::-webkit-scrollbar,
+html:not(.light) ::-webkit-scrollbar {
+  width: 6px;
 }
+html.dark ::-webkit-scrollbar-track,
+html:not(.light) ::-webkit-scrollbar-track {
+  background: #000000;
+}
+html.dark ::-webkit-scrollbar-thumb,
+html:not(.light) ::-webkit-scrollbar-thumb {
+  background: #262626;
+  border-radius: 3px;
+}
+html.dark ::-webkit-scrollbar-thumb:hover,
+html:not(.light) ::-webkit-scrollbar-thumb:hover {
+  background: #404040;
+}
+
+/* Custom Scrollbar - Light */
+html.light ::-webkit-scrollbar {
+  width: 6px;
+}
+html.light ::-webkit-scrollbar-track {
+  background: #F8F8FA;
+}
+html.light ::-webkit-scrollbar-thumb {
+  background: #D4D4D8;
+  border-radius: 3px;
+}
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #A1A1AA;
+}
+
+/* Outline Stroke Typography for Marquee */
+.text-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.7);
+}
+
+html.light .text-outline {
+  color: transparent !important;
+  -webkit-text-stroke: 1.5px rgba(17, 17, 20, 0.8) !important;
+}
+
+@media (min-width: 1024px) {
+  .text-outline {
+    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.75);
+  }
+  html.light .text-outline {
+    -webkit-text-stroke: 2px rgba(17, 17, 20, 0.85) !important;
+  }
+}
+
+/* Continuous Marquee Animation */
+@keyframes figmaMarquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-figma-marquee {
+  display: flex;
+  width: max-content;
+  animation: figmaMarquee 28s linear infinite;
+}
+
+.animate-figma-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* =========================================================================
+   Light Mode Overrides & Seamless Theme Harmonization
+   ========================================================================= */
+html.light body,
+html.light main {
+  background-color: #F8F8FA !important;
+  color: #111114 !important;
+}
+
+html.light header a,
+html.light header button {
+  color: #111114 !important;
+}
+
+/* Light Mode Marquee Ribbon */
+html.light #marquee-ribbon {
+  background-color: #F0F0F3 !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html.light #hero {
+  background-color: #F8F8FA !important;
+  color: #111114 !important;
+}
+
+/* Hero background text theme rules */
+.bg-hero-text {
+  color: rgba(255, 255, 255, 0.16) !important;
+  -webkit-text-stroke: 0 !important;
+}
+
+html.light .bg-hero-text {
+  color: rgba(17, 17, 20, 0.08) !important;
+  -webkit-text-stroke: 0 !important;
+}
+
+html.light #hero h1 {
+  color: #111114 !important;
+  filter: drop-shadow(0 2px 14px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.9)) !important;
+}
+
+html.light #about,
+html.light #experience,
+html.light #skills,
+html.light #contact {
+  background-color: #F8F8FA !important;
+  color: #111114 !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light #about h2,
+html.light #experience h2,
+html.light #skills h2,
+html.light #contact h2 {
+  color: #111114 !important;
+}
+
+/* Light Mode Timeline Connector Line & Dot */
+html.light #experience .w-\[1\.5px\] {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.08)) !important;
+}
+
+html.light #experience .w-4.h-4 {
+  background-color: #FFFFFF !important;
+  border-color: #111114 !important;
+}
+
+/* Light Mode Cards */
+html.light .bg-\[\#0D0D0E\],
+html.light .bg-\[\#0F0F0F\],
+html.light .bg-\[\#111113\],
+html.light .bg-\[\#121215\],
+html.light .bg-\[\#131316\] {
+  background-color: #FFFFFF !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #111114 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.035) !important;
+}
+
+html.light .text-white {
+  color: #111114 !important;
+}
+
+html.light .text-neutral-300,
+html.light .text-neutral-400 {
+  color: #52525B !important;
+}
+
+html.light .text-neutral-500 {
+  color: #71717A !important;
+}
+
+html.light .border-white\/5,
+html.light .border-white\/10,
+html.light .border-white\/15,
+html.light .border-white\/20,
+html.light .border-white\/25 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html.light .bg-white\/\[0\.02\],
+html.light .bg-white\/\[0\.03\],
+html.light .bg-white\/\[0\.04\],
+html.light .bg-white\/\[0\.06\],
+html.light .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  color: #27272A !important;
+}
+
+html.light .bg-white\/10,
+html.light .bg-white\/\[0\.08\] {
+  background-color: rgba(0, 0, 0, 0.065) !important;
+}
+
+html.light #contact a.bg-white {
+  background-color: #111114 !important;
+  color: #FFFFFF !important;
+}
+
+html.light #contact a.bg-white svg {
+  color: #FFFFFF !important;
+}
+
+html.light #contact button.bg-\[\#111113\] {
+  background-color: #FFFFFF !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #111114 !important;
+}
+
+/* Light Mode Modal Backdrop & Container */
+html.light .modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.45) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+html.light .modal-window {
+  background-color: #FFFFFF !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #111114 !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Light Mode Modal Text & Card Readability */
+html.light .modal-window {
+  background-color: #FFFFFF !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #111114 !important;
+}
+
+html.light .modal-window h3 {
+  color: #111114 !important;
+}
+
+html.light .modal-window .text-white {
+  color: #111114 !important;
+}
+
+html.light .modal-window .text-neutral-200 {
+  color: #18181B !important;
+}
+
+html.light .modal-window .text-neutral-300 {
+  color: #27272A !important;
+}
+
+html.light .modal-window .text-neutral-400 {
+  color: #52525B !important;
+}
+
+html.light .modal-window .text-neutral-500 {
+  color: #71717A !important;
+}
+
+html.light .modal-window .bg-white\/\[0\.03\],
+html.light .modal-window .bg-white\/\[0\.02\] {
+  background-color: #F8F8FA !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html.light #hero .h-\[1\.5px\] {
+  background-color: rgba(17, 17, 20, 0.1) !important;
+}
+
+/* Custom Scrollbar for Modal Windows */
+.custom-modal-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+html.dark .custom-modal-scroll::-webkit-scrollbar-track,
+html:not(.light) .custom-modal-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+html.dark .custom-modal-scroll::-webkit-scrollbar-thumb,
+html:not(.light) .custom-modal-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+}
+html.dark .custom-modal-scroll::-webkit-scrollbar-thumb:hover,
+html:not(.light) .custom-modal-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+html.light .custom-modal-scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.02);
+}
+html.light .custom-modal-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 4px;
+}
+html.light .custom-modal-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.35);
+}
+
