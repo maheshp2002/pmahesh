@@ -25,7 +25,7 @@ export default function RecentProjects() {
         >
           <div>
             <h2 className="text-4xl sm:text-5xl md:text-6xl font-heading font-extrabold text-black tracking-tight">
-              Selected Work
+              Recent Projects
             </h2>
             <p className="text-sm text-neutral-600 mt-2 max-w-xl font-normal leading-relaxed">
               Enterprise backend systems, database performance engineering, and independent platforms.
