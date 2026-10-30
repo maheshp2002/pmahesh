@@ -78,14 +78,19 @@ export default function About() {
               </div>
 
               {/* Framed Image Card: z-10 on top of the striped decoration */}
-              <div className="relative z-10 w-full h-full rounded-3xl overflow-hidden border border-black/10 dark:border-white/10 shadow-2xl bg-neutral-100 dark:bg-neutral-900">
+              <div className="relative z-10 w-full h-full rounded-3xl overflow-hidden border border-black/10 dark:border-white/10 shadow-2xl bg-neutral-100 dark:bg-neutral-900 group">
                 <Image
                   src={beachSunset}
                   alt="Mahesh P at Blue Water, Kerala"
                   fill
-                  className="object-cover object-center filter brightness-95 contrast-105"
+                  className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                  style={{
+                    filter: 'saturate(0.80) contrast(0.96) brightness(0.96)',
+                  }}
                   sizes="(max-width: 768px) 100vw, 340px"
                 />
+                {/* Subtle soft vignette overlay to blend harsh smartphone HDR highlights */}
+                <div className="absolute inset-0 bg-linear-to-t from-black/20 via-transparent to-black/10 pointer-events-none z-10" />
               </div>
 
             </div>
