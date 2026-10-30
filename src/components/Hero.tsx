@@ -3,6 +3,7 @@
 import React, { useRef } from 'react';
 import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import heroPortrait from '../../public/images/hero-portrait.png';
 
 export default function Hero() {
   const containerRef = useRef<HTMLElement>(null);
@@ -70,10 +71,8 @@ export default function Hero() {
               }}
             >
               <Image
-                src="/images/hero-portrait.png"
+                src={heroPortrait}
                 alt="Mahesh P — Software Engineer"
-                width={890}
-                height={1024}
                 priority
                 className="w-full h-auto max-h-full object-contain object-bottom pointer-events-none filter grayscale contrast-108 brightness-96"
               />

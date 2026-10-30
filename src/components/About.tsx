@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { LightbulbDoodle, QuestionMarkDoodle, HatchDoodle } from './Doodles';
+import beachSunset from '../../public/images/beach-sunset.jpg';
 
 export default function About() {
   return (
@@ -79,7 +80,7 @@ export default function About() {
               {/* Framed Image Card: z-10 on top of the striped decoration */}
               <div className="relative z-10 w-full h-full rounded-3xl overflow-hidden border border-black/10 dark:border-white/10 shadow-2xl bg-neutral-100 dark:bg-neutral-900">
                 <Image
-                  src="/images/beach-sunset.jpg"
+                  src={beachSunset}
                   alt="Mahesh P at Blue Water, Kerala"
                   fill
                   className="object-cover object-center filter brightness-95 contrast-105"
