@@ -1,9 +1,20 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef } from 'react';
+import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 
 export default function MarqueeRibbon() {
+  const ribbonRef = useRef<HTMLDivElement>(null);
+  const shouldReduceMotion = useReducedMotion();
+
+  const { scrollYProgress } = useScroll({
+    target: ribbonRef,
+    offset: ['start end', 'center 75%'],
+  });
+
+  const opacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const scale = useTransform(scrollYProgress, [0, 1], [0.98, 1]);
+
   const items = [
     'SOFTWARE ENGINEER',
     '.NET BACKEND DEVELOPER',
@@ -16,11 +27,9 @@ export default function MarqueeRibbon() {
 
   return (
     <motion.div
+      ref={ribbonRef}
       id="marquee-ribbon"
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: false, amount: 0.2 }}
-      transition={{ duration: 0.6 }}
+      style={shouldReduceMotion ? undefined : { opacity, scale }}
       className="relative w-full overflow-hidden bg-[#F2F2F5] dark:bg-black py-4 sm:py-6 border-y border-black/8 dark:border-white/8 select-none transition-colors duration-300"
     >
       <div className="animate-figma-marquee flex items-center whitespace-nowrap gap-12 sm:gap-16">

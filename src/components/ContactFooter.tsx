@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion } from 'framer-motion';
 import { Mail, Copy, Check, ArrowUpRight, ArrowUp, FileText } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from './Icons';
 import { PERSONAL_INFO } from '@/data/portfolioData';
@@ -12,118 +12,73 @@ const FULL_HEADLINE = "Let's talk about what I can bring to your team.";
 export default function ContactFooter() {
   const [copied, setCopied] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
-  // Direct DOM typewriter animation with active backward typing on scroll up and forward typing on scroll down
+  const footerRef = useRef<HTMLElement>(null);
   const headlineRef = useRef<HTMLHeadingElement>(null);
   const typedSpanRef = useRef<HTMLSpanElement>(null);
   const caretRef = useRef<HTMLSpanElement>(null);
-  const indexRef = useRef(0);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const lastScrollYRef = useRef(0);
 
-  const startForward = React.useCallback(() => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    if (caretRef.current) {
-      caretRef.current.style.display = 'inline-block';
-      caretRef.current.classList.remove('animate-pulse', 'opacity-60');
-      caretRef.current.classList.add('opacity-100');
+  // Scroll progress for the headline character-by-character typing effect
+  // Triggers as headline enters the bottom of the viewport (92%) up to comfortable middle view (48%)
+  const { scrollYProgress: typingProgress } = useScroll({
+    target: headlineRef,
+    offset: ['start 92%', 'start 48%'],
+  });
+
+  // Scroll progress for the overall contact container entry/exit
+  const { scrollYProgress: footerProgress } = useScroll({
+    target: footerRef,
+    offset: ['start 95%', 'start 65%'],
+  });
+
+  // Bidirectional transforms for badge, paragraph, and actions
+  const badgeOpacity = useTransform(footerProgress, [0, 0.45], [0, 1]);
+  const badgeY = useTransform(footerProgress, [0, 0.45], [16, 0]);
+
+  const descOpacity = useTransform(typingProgress, [0.45, 0.95], [0, 1]);
+  const descY = useTransform(typingProgress, [0.45, 0.95], [20, 0]);
+
+  const actionsOpacity = useTransform(typingProgress, [0.75, 1], [0, 1]);
+  const actionsY = useTransform(typingProgress, [0.75, 1], [20, 0]);
+
+  // Synchronize typed text directly with scroll progress without causing React re-renders
+  const updateTyping = (progress: number) => {
+    if (shouldReduceMotion) {
+      if (typedSpanRef.current) typedSpanRef.current.textContent = FULL_HEADLINE;
+      if (caretRef.current) caretRef.current.style.display = 'none';
+      return;
     }
 
-    timerRef.current = setInterval(() => {
-      if (indexRef.current < FULL_HEADLINE.length) {
-        indexRef.current += 1;
-        if (typedSpanRef.current) {
-          typedSpanRef.current.textContent = FULL_HEADLINE.slice(0, indexRef.current);
-        }
-        if (indexRef.current >= FULL_HEADLINE.length) {
-          if (timerRef.current) clearInterval(timerRef.current);
-          timerRef.current = null;
-          if (caretRef.current) {
-            caretRef.current.classList.add('animate-pulse', 'opacity-60');
-          }
-        }
-      } else {
-        if (timerRef.current) clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    }, 24);
-  }, []);
+    const count = Math.min(
+      FULL_HEADLINE.length,
+      Math.max(0, Math.round(progress * FULL_HEADLINE.length))
+    );
 
-  const startReverse = React.useCallback(() => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    if (caretRef.current) {
-      caretRef.current.style.display = 'inline-block';
-      caretRef.current.classList.remove('animate-pulse', 'opacity-60');
-      caretRef.current.classList.add('opacity-100');
+    if (typedSpanRef.current) {
+      typedSpanRef.current.textContent = FULL_HEADLINE.slice(0, count);
     }
 
-    timerRef.current = setInterval(() => {
-      if (indexRef.current > 0) {
-        indexRef.current -= 1;
-        if (typedSpanRef.current) {
-          typedSpanRef.current.textContent = FULL_HEADLINE.slice(0, indexRef.current);
-        }
-        if (indexRef.current <= 0) {
-          if (timerRef.current) clearInterval(timerRef.current);
-          timerRef.current = null;
-          if (caretRef.current) {
-            caretRef.current.style.display = 'none';
-          }
-        }
+    if (caretRef.current) {
+      if (count === 0) {
+        caretRef.current.style.opacity = '0';
+      } else if (count >= FULL_HEADLINE.length) {
+        caretRef.current.style.opacity = '0.6';
+        caretRef.current.classList.add('animate-pulse');
       } else {
-        if (timerRef.current) clearInterval(timerRef.current);
-        timerRef.current = null;
-        if (caretRef.current) {
-          caretRef.current.style.display = 'none';
-        }
+        caretRef.current.style.opacity = '1';
+        caretRef.current.classList.remove('animate-pulse');
       }
-    }, 14);
-  }, []);
+    }
+  };
+
+  useMotionValueEvent(typingProgress, 'change', (latest) => {
+    updateTyping(latest);
+  });
 
   useEffect(() => {
-    lastScrollYRef.current = window.scrollY;
-
-    const checkHeadlineVisibility = () => {
-      if (!headlineRef.current) return false;
-      const rect = headlineRef.current.getBoundingClientRect();
-      return rect.top < window.innerHeight * 0.95 && rect.bottom > 0;
-    };
-
-    // If already in view on load, begin typing forward
-    if (checkHeadlineVisibility() && indexRef.current === 0) {
-      startForward();
-    }
-
-    const onScroll = () => {
-      const currentScrollY = window.scrollY;
-      const delta = currentScrollY - lastScrollYRef.current;
-      lastScrollYRef.current = currentScrollY;
-
-      const isVisible = checkHeadlineVisibility();
-
-      if (isVisible) {
-        if (delta < -2) {
-          // Scrolling UP: Actively type backward!
-          startReverse();
-        } else if (delta > 2 && indexRef.current < FULL_HEADLINE.length) {
-          // Scrolling DOWN: Actively type forward!
-          startForward();
-        }
-      } else {
-        // Scrolled away / above footer: rewind to 0
-        if (indexRef.current > 0 && delta < 0) {
-          startReverse();
-        }
-      }
-    };
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [startForward, startReverse]);
+    updateTyping(typingProgress.get());
+  }, [shouldReduceMotion]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(PERSONAL_INFO.email);
@@ -137,6 +92,7 @@ export default function ContactFooter() {
 
   return (
     <footer
+      ref={footerRef}
       id="contact"
       className="relative bg-[#F8F8FA] dark:bg-black text-[#111114] dark:text-white pt-24 sm:pt-36 pb-14 overflow-hidden border-t border-black/5 dark:border-white/5 transition-colors duration-300"
     >
@@ -145,21 +101,14 @@ export default function ContactFooter() {
         {/* Main Career Statement */}
         <div className="space-y-6 max-w-4xl">
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.3 }}
-            transition={{ duration: 0.5 }}
+            style={shouldReduceMotion ? undefined : { opacity: badgeOpacity, y: badgeY }}
             className="text-xs font-mono uppercase tracking-wider text-neutral-500"
           >
             Available for Software Engineering Opportunities
           </motion.div>
 
-          <motion.h2
+          <h2
             ref={headlineRef}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.25 }}
-            transition={{ duration: 0.65, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
             className="relative text-4xl sm:text-6xl md:text-7xl lg:text-[5rem] font-heading font-extrabold text-black dark:text-white tracking-tight leading-[1.08]"
           >
             {/* Invisible baseline to maintain responsive height and eliminate layout shift */}
@@ -167,34 +116,27 @@ export default function ContactFooter() {
               {FULL_HEADLINE}
             </span>
 
-            {/* Live typewriter overlay with blinking caret */}
+            {/* Live scroll-progress typewriter overlay with blinking caret */}
             <span className="absolute inset-0">
               <span ref={typedSpanRef} />
               <span
                 ref={caretRef}
-                className="inline-block w-0.75 sm:w-1 h-[0.82em] bg-black dark:bg-white ml-1.5 align-baseline"
-                style={{ display: 'none' }}
+                className="inline-block w-0.75 sm:w-1 h-[0.82em] bg-black dark:bg-white ml-1.5 align-baseline opacity-0 transition-opacity"
               />
             </span>
-          </motion.h2>
+          </h2>
 
           <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.3 }}
-            transition={{ duration: 0.65, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
+            style={shouldReduceMotion ? undefined : { opacity: descOpacity, y: descY }}
             className="text-base sm:text-lg md:text-xl text-neutral-600 dark:text-neutral-400 font-normal leading-relaxed max-w-3xl"
           >
             Software engineer focused on .NET backend systems, database performance engineering, and mission-critical enterprise integrations.
           </motion.p>
         </div>
 
-        {/* Action Row with bi-directional reverse animation */}
+        {/* Action Row with reversible scroll progress animation */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, amount: 0.2 }}
-          transition={{ duration: 0.6, delay: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          style={shouldReduceMotion ? undefined : { opacity: actionsOpacity, y: actionsY }}
           className="space-y-8 pt-2"
         >
           {/* Primary Action Button & Email Row */}
@@ -262,6 +204,7 @@ export default function ContactFooter() {
             </a>
           </div>
         </motion.div>
+
 
         {/* Minimal Bottom Footer */}
         <div className="pt-12 border-t border-black/10 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-6 text-xs font-mono text-neutral-500">
